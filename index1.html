@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tassirou Kondjira — Licence Dev Web</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080810;
+      --surface: #0f0f1a;
+      --border: rgba(255,255,255,0.06);
+      --gold: #e8c97a;
+      --violet: #9b8ef0;
+      --text: #f0ece4;
+      --muted: rgba(240,236,228,0.45);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); scroll-behavior: smooth; }
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ── */
+    #cur { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: transform .15s; }
+    #cur-r { width: 32px; height: 32px; border: 1px solid rgba(232,201,122,.4); border-radius: 50%; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: left .12s ease-out, top .12s ease-out; }
+    body:has(a:hover,button:hover) #cur { transform: translate(-50%,-50%) scale(3); background: transparent; border: 1px solid var(--gold); }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 200;
+      padding: 0 2.5rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      backdrop-filter: blur(24px);
+      background: rgba(8,8,16,.8);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--gold); letter-spacing: .05em; }
+    .nav-links { display: flex; gap: 2.2rem; }
+    .nav-link { font-family: 'JetBrains Mono', monospace; font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); transition: color .25s; }
+    .nav-link:hover { color: var(--gold); }
+    .nav-cta { font-family: 'JetBrains Mono', monospace; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; background: var(--gold); color: var(--bg); padding: .5rem 1.3rem; border-radius: 100px; transition: transform .2s, box-shadow .2s; font-weight: 500; }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,201,122,.35); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100svh; padding: 120px 2.5rem 80px;
+      display: flex; flex-direction: column; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 50% at 80% 30%, rgba(155,142,240,.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 15% 70%, rgba(232,201,122,.08) 0%, transparent 65%);
+    }
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .72rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--gold); display: flex; align-items: center; gap: .7rem;
+      margin-bottom: 1.8rem;
+    }
+    .pulse-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 14vw, 14rem);
+      line-height: .92;
+      letter-spacing: .01em;
+      overflow: hidden;
+    }
+    .hero-title .line { overflow: hidden; display: block; }
+    .hero-title .line span { display: block; animation: slideUp .9s cubic-bezier(.16,1,.3,1) forwards; opacity: 0; transform: translateY(105%); }
+    .hero-title .gold { color: var(--gold); }
+    .hero-title .outline {
+      -webkit-text-stroke: 1px rgba(240,236,228,.18);
+      color: transparent;
+    }
+    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+    .hero-sub {
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: flex-end; gap: 3rem;
+      margin-top: 3rem;
+      animation: fadeIn 1s .8s both;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+    .hero-desc { max-width: 480px; font-size: 1.05rem; line-height: 1.75; color: var(--muted); }
+    .hero-stats { display: flex; gap: 2.5rem; flex-shrink: 0; }
+    .stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; color: var(--gold); line-height: 1; }
+    .stat-label { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin-top: .3rem; }
+
+    .hero-actions { display: flex; gap: 1rem; margin-top: 2.5rem; animation: fadeIn 1s 1s both; }
+    .btn-gold { background: var(--gold); color: var(--bg); font-family: 'JetBrains Mono', monospace; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; padding: .85rem 2rem; border-radius: 100px; font-weight: 600; transition: transform .2s, box-shadow .2s; display: inline-block; }
+    .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(232,201,122,.4); }
+    .btn-ghost { border: 1px solid rgba(240,236,228,.15); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; padding: .85rem 2rem; border-radius: 100px; transition: all .2s; display: inline-block; }
+    .btn-ghost:hover { border-color: rgba(232,201,122,.4); color: var(--gold); transform: translateY(-2px); }
+
+    /* Scroll indicator */
+    .scroll-hint { position: absolute; bottom: 2.5rem; left: 2.5rem; display: flex; align-items: center; gap: .8rem; animation: fadeIn 1s 1.4s both; }
+    .scroll-hint span { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+    .scroll-line { width: 40px; height: 1px; background: linear-gradient(90deg, var(--gold), transparent); }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap { overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1rem 0; background: var(--surface); }
+    .marquee-track { display: flex; width: max-content; animation: marquee 22s linear infinite; }
+    .marquee-item { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: .15em; color: var(--muted); padding: 0 2rem; white-space: nowrap; }
+    .marquee-dot { color: var(--gold); padding: 0 .5rem; }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ── SECTIONS ── */
+    section { position: relative; }
+    .section-inner { max-width: 1200px; margin: 0 auto; padding: 0 2.5rem; }
+    .section-header { margin-bottom: 4rem; }
+    .section-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: .8rem; display: flex; align-items: center; gap: .7rem; }
+    .section-eyebrow::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(232,201,122,.3), transparent); max-width: 120px; }
+    .section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.8rem, 6vw, 5.5rem); line-height: .95; letter-spacing: .02em; }
+    .section-title em { color: var(--gold); font-style: italic; }
+
+    /* ── ABOUT ── */
+    #about { padding: 6rem 0; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    .about-photo-wrap { position: relative; }
+    .about-photo { width: 100%; aspect-ratio: 3/4; border-radius: 20px; background: linear-gradient(145deg, rgba(155,142,240,.2), rgba(232,201,122,.1)); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+    .about-photo-deco1 { position: absolute; bottom: -16px; right: -16px; width: 160px; height: 160px; border: 1px solid rgba(232,201,122,.2); border-radius: 16px; z-index: -1; }
+    .about-photo-badge { position: absolute; bottom: 1.5rem; left: 1.5rem; background: rgba(8,8,16,.85); border: 1px solid rgba(232,201,122,.25); border-radius: 12px; padding: .9rem 1.2rem; backdrop-filter: blur(12px); }
+    .about-body { padding-top: 1rem; }
+    .about-text { color: var(--muted); line-height: 1.85; font-size: .95rem; margin-bottom: 1.4rem; }
+    .about-tags { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 2rem; }
+    .tag { font-family: 'JetBrains Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; padding: .35rem .9rem; border-radius: 100px; border: 1px solid rgba(232,201,122,.22); background: rgba(232,201,122,.06); color: var(--gold); }
+
+    /* ── BENTO EXPERIENCE ── */
+    #experience { padding: 6rem 0; background: var(--surface); }
+    .bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1rem; }
+    .bento-card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 18px; padding: 2rem;
+      transition: border-color .3s, transform .3s;
+    }
+    .bento-card:hover { border-color: rgba(232,201,122,.25); transform: translateY(-3px); }
+    .bc-1 { grid-column: span 7; }
+    .bc-2 { grid-column: span 5; }
+    .bc-3 { grid-column: span 5; }
+    .bc-4 { grid-column: span 7; }
+    .exp-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; margin-bottom: 1.4rem; }
+    .exp-period { font-family: 'JetBrains Mono', monospace; font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+    .exp-title { font-size: 1.1rem; font-weight: 700; margin-bottom: .25rem; }
+    .exp-company { font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--gold); margin-bottom: .9rem; }
+    .exp-desc { color: var(--muted); font-size: .85rem; line-height: 1.7; }
+    .exp-pills { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1.2rem; }
+    .pill { font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; padding: .2rem .7rem; border-radius: 100px; background: rgba(155,142,240,.1); border: 1px solid rgba(155,142,240,.2); color: var(--violet); }
+
+    /* ── FORMATION ── */
+    #formation { padding: 6rem 0; }
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .tl-item { display: flex; gap: 2rem; padding: 2.2rem 0; border-bottom: 1px solid var(--border); }
+    .tl-item:last-child { border-bottom: none; }
+    .tl-year { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--gold); opacity: .5; min-width: 100px; padding-top: .1rem; }
+    .tl-body { flex: 1; }
+    .tl-school { font-family: 'JetBrains Mono', monospace; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--violet); margin-bottom: .4rem; }
+    .tl-degree { font-size: 1.05rem; font-weight: 700; margin-bottom: .6rem; }
+    .tl-desc { color: var(--muted); font-size: .88rem; line-height: 1.7; }
+
+    /* ── SKILLS ── */
+    #skills { padding: 6rem 0; background: var(--surface); }
+    .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .skill-card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.6rem; transition: border-color .3s, transform .3s; }
+    .skill-card:hover { border-color: rgba(232,201,122,.25); transform: translateY(-3px); }
+    .skill-icon { font-size: 1.8rem; margin-bottom: 1rem; }
+    .skill-name { font-weight: 700; font-size: .95rem; margin-bottom: .25rem; }
+    .skill-type { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.2rem; }
+    .skill-bar { height: 2px; background: rgba(240,236,228,.06); border-radius: 10px; overflow: hidden; }
+    .skill-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--violet)); border-radius: 10px; width: 0; transition: width 1.4s cubic-bezier(.16,1,.3,1); }
+
+    .softskills-row { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 3rem; }
+    .langs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 3rem; }
+    .lang-card { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem 1.4rem; }
+    .lang-name { font-weight: 700; font-size: .9rem; }
+    .lang-level { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-top: .25rem; }
+
+    /* ── PROJECTS ── */
+    #projects { padding: 6rem 0; }
+    .projects-featured { display: grid; grid-template-columns: 1.1fr .9fr; gap: 1rem; margin-bottom: 1rem; }
+    .proj-big { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; transition: border-color .3s, transform .3s; }
+    .proj-big:hover { border-color: rgba(232,201,122,.3); transform: translateY(-4px); }
+    .proj-visual { height: 260px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .proj-visual-text { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; line-height: 1; letter-spacing: .05em; opacity: .12; text-align: center; }
+    .proj-body { padding: 1.8rem 2rem; }
+    .proj-meta { display: flex; align-items: center; gap: .6rem; margin-bottom: .8rem; }
+    .proj-type { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--violet); }
+    .proj-year { font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--muted); }
+    .proj-name { font-size: 1.2rem; font-weight: 700; margin-bottom: .6rem; }
+    .proj-desc { color: var(--muted); font-size: .84rem; line-height: 1.7; margin-bottom: 1.2rem; }
+    .proj-links { display: flex; gap: .8rem; }
+    .proj-link { font-family: 'JetBrains Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); transition: opacity .2s; }
+    .proj-link:hover { opacity: .7; }
+    .projects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .proj-sm { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color .3s, transform .3s; }
+    .proj-sm:hover { border-color: rgba(232,201,122,.3); transform: translateY(-3px); }
+    .proj-sm-visual { height: 130px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .proj-sm-body { padding: 1.3rem 1.4rem; }
+
+    /* ── CONTACT ── */
+    #contact { padding: 6rem 0; background: var(--surface); }
+    .contact-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 4rem; align-items: start; }
+    .contact-info { padding-top: 1rem; }
+    .contact-big { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem, 6vw, 5rem); line-height: .95; margin-bottom: 1.5rem; }
+    .contact-big em { color: var(--gold); font-style: italic; }
+    .contact-desc { color: var(--muted); line-height: 1.8; font-size: .95rem; margin-bottom: 2.5rem; }
+    .contact-items { display: flex; flex-direction: column; gap: 1rem; }
+    .contact-item { display: flex; align-items: center; gap: 1rem; }
+    .contact-item-icon { width: 42px; height: 42px; background: rgba(232,201,122,.08); border: 1px solid rgba(232,201,122,.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .contact-item-label { font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin-bottom: .2rem; }
+    .contact-item-val { font-size: .9rem; font-weight: 600; }
+    .socials { display: flex; gap: .7rem; margin-top: 2rem; }
+    .soc { width: 38px; height: 38px; border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all .2s; }
+    .soc:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+    .form-card { background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.4rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
+    .form-label { font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
+    .form-input { background: rgba(240,236,228,.03); border: 1px solid rgba(240,236,228,.08); border-radius: 10px; padding: .8rem 1rem; color: var(--text); font-family: 'Syne', sans-serif; font-size: .88rem; outline: none; transition: border-color .25s; }
+    .form-input::placeholder { color: rgba(240,236,228,.2); }
+    .form-input:focus { border-color: rgba(232,201,122,.4); }
+    textarea.form-input { resize: none; }
+    .form-submit { background: var(--gold); color: var(--bg); font-family: 'JetBrains Mono', monospace; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; padding: .9rem; width: 100%; border: none; border-radius: 100px; cursor: pointer; font-weight: 600; margin-top: .5rem; transition: transform .2s, box-shadow .2s; }
+    .form-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(232,201,122,.35); }
+
+    /* ── FOOTER ── */
+    footer { padding: 2.5rem 2.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; max-width: 100%; }
+    .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--gold); }
+    .footer-copy { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .1em; color: var(--muted); }
+    .footer-links { display: flex; gap: 1.5rem; }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── MOBILE ── */
+    #mobile-menu { display: none; flex-direction: column; background: var(--bg); border-top: 1px solid var(--border); padding: 1rem 2.5rem 1.5rem; }
+    #mobile-menu.open { display: flex; }
+
+    @media (max-width: 900px) {
+      .nav-links, .nav-cta { display: none; }
+      #burger { display: flex; }
+      .about-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .bento { grid-template-columns: 1fr; }
+      .bc-1,.bc-2,.bc-3,.bc-4 { grid-column: span 1; }
+      .skills-grid { grid-template-columns: repeat(2, 1fr); }
+      .projects-featured { grid-template-columns: 1fr; }
+      .projects-grid { grid-template-columns: 1fr 1fr; }
+      .langs-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .hero-sub { grid-template-columns: 1fr; }
+      .skills-grid { grid-template-columns: 1fr; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .hero-title { font-size: clamp(4rem, 20vw, 8rem); }
+      .langs-grid { grid-template-columns: 1fr; }
+    }
+
+    #burger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+    #burger span { display: block; width: 22px; height: 1px; background: var(--text); }
+    @media (max-width: 900px) { #burger { display: flex; } }
+  </style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-r"></div>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <a href="#hero" class="nav-logo">TK.</a>
+  <ul class="nav-links" style="list-style:none">
+    <li><a href="#about" class="nav-link">À propos</a></li>
+    <li><a href="#experience" class="nav-link">Expérience</a></li>
+    <li><a href="#formation" class="nav-link">Formation</a></li>
+    <li><a href="#skills" class="nav-link">Skills</a></li>
+    <li><a href="#projects" class="nav-link">Projets</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Me contacter</a>
+  <button id="burger" aria-label="menu"><span></span><span></span><span></span></button>
+</nav>
+<div id="mobile-menu">
+  <a href="#about" class="nav-link" style="padding:.7rem 0;border-bottom:1px solid var(--border)">À propos</a>
+  <a href="#experience" class="nav-link" style="padding:.7rem 0;border-bottom:1px solid var(--border)">Expérience</a>
+  <a href="#formation" class="nav-link" style="padding:.7rem 0;border-bottom:1px solid var(--border)">Formation</a>
+  <a href="#skills" class="nav-link" style="padding:.7rem 0;border-bottom:1px solid var(--border)">Skills</a>
+  <a href="#projects" class="nav-link" style="padding:.7rem 0;border-bottom:1px solid var(--border)">Projets</a>
+  <a href="#contact" class="nav-link" style="padding:.7rem 0">Contact</a>
+</div>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="hero-bg-glow"></div>
+
+  <!-- floating orbs -->
+  <div style="position:absolute;top:20%;right:6%;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(155,142,240,.1) 0%,transparent 70%);pointer-events:none;animation:breathe 6s ease-in-out infinite"></div>
+  <div style="position:absolute;bottom:25%;left:3%;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(232,201,122,.07) 0%,transparent 70%);pointer-events:none;animation:breathe 8s ease-in-out infinite reverse"></div>
+  <style>@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}</style>
+
+  <div style="position:relative;z-index:10">
+    <div class="hero-eyebrow">
+      <span class="pulse-dot"></span>
+      Disponible pour de nouvelles opportunités
+    </div>
+
+    <h1 class="hero-title">
+      <span class="line" style="animation-delay:.05s"><span>Tassirou</span></span>
+      <span class="line" style="animation-delay:.18s"><span class="gold">Kondjira</span></span>
+      <span class="line" style="animation-delay:.3s"><span class="outline">Frontend</span></span>
+    </h1>
+
+    <div class="hero-sub">
+      <p class="hero-desc">
+        Je transforme des idées en expériences digitales mémorables. Développeur Frontend passionné par l'intersection entre design et technologie — chaque pixel compte.
+      </p>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-val">2+</div>
+          <div class="stat-label">Années<br/>d'expérience</div>
+        </div>
+        <div>
+          <div class="stat-val">5+</div>
+          <div class="stat-label">Projets<br/>réalisés</div>
+        </div>
+        <div>
+          <div class="stat-val">8+</div>
+          <div class="stat-label">Technologies<br/>maîtrisées</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <a href="#projects" class="btn-gold">Voir mes projets</a>
+      <a href="#contact" class="btn-ghost">Discutons ensemble →</a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ══ MARQUEE ══ -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">React.js</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">TypeScript</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Tailwind CSS</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Next.js</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Figma</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Node.js</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Git & GitHub</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">UI/UX Design</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Performance Web</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Accessibilité</span><span class="marquee-dot">✦</span>
+    <!-- duplicate -->
+    <span class="marquee-item">React.js</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">TypeScript</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Tailwind CSS</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Next.js</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Figma</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Node.js</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Git & GitHub</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">UI/UX Design</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Performance Web</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Accessibilité</span><span class="marquee-dot">✦</span>
+  </div>
+</div>
+
+<!-- ══ ABOUT ══ -->
+<section id="about" style="padding:6rem 0">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="reveal about-photo-wrap">
+        <div class="about-photo">
+          <!-- Swap with: <img src="photo.jpg" style="width:100%;height:100%;object-fit:cover"> -->
+          <div style="text-align:center">
+            <div style="width:80px;height:80px;border-radius:50%;background:rgba(232,201,122,.15);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(232,201,122,.6)" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <p style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(240,236,228,.25);letter-spacing:.1em"><img src="+221 77 565 38 57 20260105_022017.jpg" alt="Photo de Tassirou Kondjira" style="width:100%;height:100%;object-fit:cover"></p>
+          </div>
+          <div class="about-photo-badge reveal border-2 border-dotted" style="transition-delay:.1s">
+            <p style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase">Frontend Dev</p>
+            <p style="font-size:.85rem;font-weight:600;margin-top:.2rem">Dakar, Sénégal</p>
+          </div>
+        </div>
+        <div class="about-photo-deco1"></div>
+      </div>
+
+      <div class="reveal about-body" style="transition-delay:.15s">
+        <div class="section-header" style="margin-bottom:2rem">
+          <p class="section-eyebrow">01 — À propos</p>
+          <h2 class="section-title">Créer avec<br/><em>passion</em> &<br/>précision</h2>
+        </div>
+        <p class="about-text">Basé à Dakar, je suis développeur web frontend avec une passion pour la création d'interfaces utilisateur belles et fonctionnelles. Mon approche allie rigueur technique et sensibilité design.</p>
+        <p class="about-text">Formé en développement web, j'ai acquis une solide expérience dans la construction d'applications modernes, en accordant une attention particulière à l'accessibilité, la performance et l'expérience utilisateur.</p>
+        <p class="about-text">En dehors du code, je m'intéresse à la photographie, au design graphique et aux nouvelles tendances technologiques.</p>
+        <div class="about-tags">
+          <span class="tag">📍 Dakar, Sénégal</span>
+          <span class="tag">🎓 Licence Dev Web</span>
+          <span class="tag">✉️ tassirou44@gmail.com</span>
+          <span class="tag">🌐 Remote OK</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ EXPERIENCE ══ -->
+<section id="experience">
+  <div class="section-inner">
+    <div class="reveal section-header">
+      <p class="section-eyebrow">02 — Expériences</p>
+      <h2 class="section-title">Parcours<br/><em>professionnel</em></h2>
+    </div>
+
+    <div class="bento">
+      <!-- Card 1 - big -->
+      <div class="reveal bento-card bc-1">
+        <div class="exp-icon" style="background:rgba(232,201,122,.1);border:1px solid rgba(232,201,122,.2);color:var(--gold)">S</div>
+        <div class="exp-period">Mars. 2026 – Présent</div>
+        <div class="exp-title">Développeur Frontend — Alternance</div>
+        <div class="exp-company">Aiglix Group - Dakar</div>
+        <div class="exp-desc">Développement et maintenance de l'interface utilisateur d'une application SaaS B2B en React. Refonte complète du design system, amélioration des performances (LCP réduit de 40%).</div>
+        <ul style="margin-top:.9rem;color:var(--muted);font-size:.82rem;line-height:1.6;list-style:none">
+          <li style="display:flex;gap:.6rem;margin-bottom:.4rem"><span style="color:var(--gold)">→</span>Intégration de maquettes Figma en React + Tailwind</li>
+          <li style="display:flex;gap:.6rem;margin-bottom:.4rem"><span style="color:var(--gold)">→</span>Optimisation via lazy loading & code splitting</li>
+          <li style="display:flex;gap:.6rem"><span style="color:var(--gold)">→</span>Collaboration design/backend sur GitHub</li>
+        </ul>
+        <div class="exp-pills"><span class="pill">React</span><span class="pill">TypeScript</span><span class="pill">Tailwind CSS</span><span class="pill">Figma</span></div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="reveal bento-card bc-2" style="transition-delay:.1s">
+        <div class="exp-icon" style="background:rgba(155,142,240,.1);border:1px solid rgba(155,142,240,.2);color:var(--violet)">A</div>
+        <div class="exp-period">Mars. – Juin 2025</div>
+        <div class="exp-title">Développeur Web — Stage</div>
+        <div class="exp-company" style="color:var(--violet)">Smart Group Senegal - Dakar</div>
+        <div class="exp-desc">Stage de 3 mois. Développement de landing pages pour des clients PME, intégration WordPress et optimisation SEO. 5 sites vitrines livrés.</div>
+        <div class="exp-pills"><span class="pill">HTML/CSS</span><span class="pill">JavaScript</span><span class="pill">WordPress</span><span class="pill">SEO</span></div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="reveal bento-card bc-3" style="transition-delay:.15s">
+        <div class="exp-icon" style="background:rgba(240,236,228,.04);border:1px solid rgba(240,236,228,.08);color:var(--muted)">F</div>
+        <div class="exp-period">2024 – 2026</div>
+        <div class="exp-title">Développeur Web Freelance</div>
+        <div class="exp-company" style="color:var(--muted)">Indépendant · Remote</div>
+        <div class="exp-desc">Réalisation de projets pour des associations et auto-entrepreneurs. Gestion complète de la conception à la mise en ligne.</div>
+        <div class="exp-pills"><span class="pill">HTML/CSS</span><span class="pill">JavaScript</span><span class="pill">Git</span></div>
+      </div>
+
+      <!-- Card 4 - highlight stat -->
+      <div class="reveal bento-card bc-4" style="transition-delay:.2s;background:linear-gradient(135deg,rgba(232,201,122,.07) 0%,rgba(155,142,240,.05) 100%);border-color:rgba(232,201,122,.15);display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:4rem;color:var(--gold);line-height:1">40%</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:.3rem">Réduction du LCP</div>
+        </div>
+        <div style="width:1px;height:60px;background:var(--border)"></div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:4rem;color:var(--gold);line-height:1">5+</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:.3rem">Sites livrés en stage</div>
+        </div>
+        <div style="width:1px;height:60px;background:var(--border)"></div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:4rem;color:var(--gold);line-height:1">3</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:.3rem">Entreprises <br/>collaborées</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FORMATION ══ -->
+<section id="formation" style="padding:6rem 0">
+  <div class="section-inner">
+    <div class="reveal section-header">
+      <p class="section-eyebrow">03 — Formation</p>
+      <h2 class="section-title">Parcours<br/><em>académique</em></h2>
+    </div>
+    <div class="timeline">
+      <div class="reveal tl-item">
+        <div class="tl-year">2024–26</div>
+        <div class="tl-body">
+          <div class="tl-school">UNIPRO — Alternance</div>
+          <div class="tl-degree">Licence Professionnelle — Développement Web & Mobile</div>
+          <div class="tl-desc">Formation intensive en développement web frontend et backend. Projet de fin d'année en entreprise. Modules : HTML/CSS, JavaScript, React, Node.js, bases de données, déploiement cloud.</div>
+          <div class="about-tags" style="margin-top:1rem"><span class="tag">React</span><span class="tag">Node.js</span><span class="tag">JavaScript</span><span class="tag">SQL</span></div>
+        </div>
+      </div>
+      <div class="reveal tl-item" style="transition-delay:.2s">
+        <div class="tl-year" style="opacity:.3">2019–22</div>
+        <div class="tl-body">
+          <div class="tl-school" style="color:var(--muted)">Lycée Mame Abdou Aziz Sy Dabakh, Guédiawaye</div>
+          <div class="tl-degree">Baccalauréat Général — Sciences Expérimentales</div>
+          <div class="tl-desc">Spécialités Mathématiques et Sciences. <strong style="color:var(--gold)">Mention Bien.</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SKILLS ══ -->
+<section id="skills">
+  <div class="section-inner">
+    <div class="reveal section-header">
+      <p class="section-eyebrow">04 — Compétences</p>
+      <h2 class="section-title">Stack &<br/><em>savoir-faire</em></h2>
+    </div>
+    <div class="skills-grid" id="skills-grid">
+      <div class="skill-card reveal">
+        <div class="skill-icon">⚛️</div>
+        <div class="skill-name">React.js</div>
+        <div class="skill-type">Framework UI</div>
+        <div class="skill-bar"><div class="skill-fill" data-width="80"></div></div>
+      </div>
+      <div class="skill-card reveal" style="transition-delay:.07s">
+        <div class="skill-icon">🎨</div>
+        <div class="skill-name">HTML / CSS</div>
+        <div class="skill-type">Fondamentaux</div>
+        <div class="skill-bar"><div class="skill-fill" data-width="95"></div></div>
+      </div>
+      <div class="skill-card reveal" style="transition-delay:.14s">
+        <div class="skill-icon">⚡</div>
+        <div class="skill-name">JavaScript</div>
+        <div class="skill-type">Langage</div>
+        <div class="skill-bar"><div class="skill-fill" data-width="85"></div></div>
+      </div>
+      <div class="skill-card reveal" style="transition-delay:.21s">
+        <div class="skill-icon">🔷</div>
+        <div class="skill-name">TypeScript</div>
+        <div class="skill-type">Typage statique</div>
+        <div class="skill-bar"><div class="skill-fill" data-width="70"></div></div>
+      </div>
+      <div class="skill-card reveal" style="transition-delay:.28s">
+        <div class="skill-icon">💨</div>
+        <div class="skill-name">Tailwind CSS</div>
+        <div class="skill-type">Styling</div>
+        <div class="skill-bar"><div class="skill-fill" data-width="90"></div></div>
+      </div>
+      <div class="skill-card reveal" style="transition-delay:.35s">
+        <div class="skill-icon">🐙</div>
+        <div class="skill-name">Git / GitHub</div>
+        <div class="skill-type">Versioning</div>
+        <div class="skill-bar"><div class="skill-fill" data-width="85"></div></div>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:3rem;transition-delay:.1s">
+      <p class="section-eyebrow" style="margin-bottom:1.2rem">Soft skills</p>
+      <div class="softskills-row">
+        <span class="tag">Travail en équipe</span>
+        <span class="tag">Communication</span>
+        <span class="tag">Créativité</span>
+        <span class="tag">Autonomie</span>
+        <span class="tag">Rigueur</span>
+        <span class="tag">Adaptabilité</span>
+        <span class="tag">Problem-solving</span>
+      </div>
+    </div>
+
+    <div class="reveal langs-grid" style="transition-delay:.15s">
+      <div class="lang-card">
+        <div class="lang-name">🇫🇷 Français</div>
+        <div class="lang-level">Avancée</div>
+        <div style="display:flex;gap:4px;margin-top:.7rem">
+          <div style="flex:1;height:2px;background:var(--gold);border-radius:2px"></div>
+          <div style="flex:1;height:2px;background:var(--gold);border-radius:2px"></div>
+          <div style="flex:1;height:2px;background:var(--gold);border-radius:2px"></div>
+          <div style="flex:1;height:2px;background:var(--gold);border-radius:2px"></div>
+          <div style="flex:1;height:2px;background:var(--gold);border-radius:2px"></div>
+        </div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-name">🇬🇧 Anglais</div>
+        <div class="lang-level">B2 — Courant</div>
+        <div style="display:flex;gap:4px;margin-top:.7rem">
+          <div style="flex:1;height:2px;background:var(--gold);border-radius:2px"></div>
+          <div style="flex:1;height:2px;background:var(--gold);border-radius:2px"></div>
+          <div style="flex:1;height:2px;background:var(--gold);border-radius:2px"></div>
+          <div style="flex:1;height:2px;background:var(--gold);border-radius:2px"></div>
+          <div style="flex:1;height:2px;background:rgba(240, 236, 228, 0.1);border-radius:2px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROJECTS ══ -->
+<section id="projects" style="padding:6rem 0">
+  <div class="section-inner">
+    <div class="reveal section-header">
+      <p class="section-eyebrow">05 — Projets</p>
+      <h2 class="section-title">Réalisations<br/><em>récentes</em></h2>
+    </div>
+
+    <!-- Featured -->
+    <div class="reveal projects-featured">
+      <div class="proj-big">
+        <div class="proj-visual" style="background:linear-gradient(135deg,rgba(155,142,240,.22),rgba(232,201,122,.12))">
+          <div class="proj-visual-text" style="color:var(--violet)">DASH<br/>BOARD</div>
+          <div style="position:absolute;bottom:1.2rem;left:1.2rem;right:1.2rem;background:rgba(8,8,16,.7);border:1px solid rgba(240,236,228,.08);border-radius:10px;padding:.9rem 1rem;backdrop-filter:blur(10px)">
+            <div style="display:flex;gap:6px;margin-bottom:6px"><div style="height:5px;background:var(--gold);border-radius:3px;width:55%"></div><div style="height:5px;background:rgba(240,236,228,.08);border-radius:3px;flex:1"></div></div>
+            <div style="display:flex;gap:6px"><div style="height:3px;background:rgba(240,236,228,.08);border-radius:2px;width:35%"></div><div style="height:3px;background:rgba(155,142,240,.3);border-radius:2px;width:25%"></div></div>
+          </div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-meta"><span class="proj-type">Projet phare</span><span style="color:var(--muted);font-size:.6rem">·</span><span class="proj-year">2026</span></div>
+          <div class="proj-name">Dashboard Analytics</div>
+          <div class="proj-desc">Application de visualisation de données en temps réel pour une startup fintech. Graphiques interactifs, filtres dynamiques, exports PDF. Réduction de 60% du temps d'analyse.</div>
+          <div class="exp-pills" style="margin-bottom:1.2rem"><span class="pill">React</span><span class="pill">TypeScript</span><span class="pill">Recharts</span><span class="pill">Tailwind</span></div>
+          <div class="proj-links">
+            <a href="#" class="proj-link">Voir le projet →</a>
+            <a href="#" class="proj-link" style="color:var(--muted)">GitHub →</a>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="proj-big" style="flex:1">
+          <div class="proj-visual" style="background:linear-gradient(135deg,rgba(232,201,122,.15),rgba(8,8,16,.5));min-height:140px">
+            <div class="proj-visual-text" style="color:var(--gold);font-size:3.5rem">E-SHOP</div>
+          </div>
+          <div class="proj-body" style="padding:1.3rem 1.5rem">
+            <div class="proj-meta"><span class="proj-type">E-commerce</span><span class="proj-year">2026</span></div>
+            <div class="proj-name" style="font-size:1rem">Boutique Mode</div>
+            <div class="proj-desc" style="font-size:.8rem">Site e-commerce pour une marque locale. Panier dynamique, filtres produits, paiement Stripe.</div>
+            <div class="proj-links"><a href="#" class="proj-link">Voir →</a></div>
+          </div>
+        </div>
+        <div class="proj-big" style="flex:1">
+          <div class="proj-visual" style="background:linear-gradient(135deg,rgba(8,8,16,.5),rgba(155,142,240,.2));min-height:100px">
+            <div class="proj-visual-text" style="color:var(--violet);font-size:3rem">APP</div>
+          </div>
+          <div class="proj-body" style="padding:1.3rem 1.5rem">
+            <div class="proj-meta"><span class="proj-type" style="color:var(--violet)">SaaS</span><span class="proj-year">2025</span></div>
+            <div class="proj-name" style="font-size:1rem">Task Manager App</div>
+            <div class="proj-desc" style="font-size:.8rem">App de gestion de tâches. Drag & drop, collaboration temps réel, sync Firebase.</div>
+            <div class="proj-links"><a href="#" class="proj-link">Voir →</a></div>
+          </div>
+        </div> 
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="projects-grid" style="margin-top:1rem">
+      <div class="reveal proj-sm" style="transition-delay:.1s">
+        <div class="proj-sm-visual" style="background:linear-gradient(135deg,rgba(232,201,122,.1),rgba(8,8,16,.8))">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:rgba(232,201,122,.25)">BLOG</div>
+        </div>
+        <div class="proj-sm-body">
+          <div class="proj-meta"><span class="proj-type">CMS</span><span class="proj-year">2023</span></div>
+          <div class="proj-name" style="font-size:.95rem">Blog Tech & Design</div>
+          <div class="proj-desc" style="font-size:.78rem">Plateforme avec CMS headless, gestion articles & catégories. Déployé sur Vercel.</div>
+          <div class="exp-pills" style="margin-bottom:.8rem"><span class="pill">Astro</span><span class="pill">MDX</span></div>
+          <a href="#" class="proj-link" style="font-size:.6rem">Voir →</a>
+        </div>
+      </div>
+
+      <div class="reveal proj-sm" style="transition-delay:.2s">
+        <div class="proj-sm-visual" style="background:linear-gradient(135deg,rgba(155,142,240,.15),rgba(8,8,16,.8))">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:rgba(155,142,240,.25)">PORT</div>
+        </div>
+        <div class="proj-sm-body">
+          <div class="proj-meta"><span class="proj-type" style="color:var(--violet)">Portfolio</span><span class="proj-year">2026</span></div>
+          <div class="proj-name" style="font-size:.95rem">Portfolio Personnel</div>
+          <div class="proj-desc" style="font-size:.78rem">Ce portfolio ! Animations CSS, design system cohérent, HTML + Tailwind pur.</div>
+          <div class="exp-pills" style="margin-bottom:.8rem"><span class="pill">HTML</span><span class="pill">CSS</span></div>
+          <a href="#" class="proj-link" style="font-size:.6rem">Voir →</a>
+        </div>
+      </div>
+
+      <div class="reveal proj-sm" style="transition-delay:.3s">
+        <div class="proj-sm-visual" style="background:linear-gradient(135deg,rgba(8,8,16,.8),rgba(232,201,122,.08))">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:rgba(232,201,122,.15)">API</div>
+        </div>
+        <div class="proj-sm-body">
+          <div class="proj-meta"><span class="proj-type">Fullstack</span><span class="proj-year">2026</span></div>
+          <div class="proj-name" style="font-size:.95rem">API REST Node.js</div>
+          <div class="proj-desc" style="font-size:.78rem">API RESTful avec Express, authentification JWT, base de données PostgreSQL.</div>
+          <div class="exp-pills" style="margin-bottom:.8rem"><span class="pill">Node.js</span><span class="pill">Express</span></div>
+          <a href="#" class="proj-link" style="font-size:.6rem">Voir →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="contact-grid">
+      <div class="reveal contact-info">
+        <p class="section-eyebrow">06 — Contact</p>
+        <h2 class="contact-big">Travaillons<br/><em>ensemble</em></h2>
+        <p class="contact-desc">Vous avez un projet en tête ? N'hésitez pas à me contacter — je serai ravi d'échanger et de voir comment je peux vous aider à le concrétiser.</p>
+        <div class="contact-items">
+          <a href="mailto:tassirou44@gmail.com" class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Email</div>
+              <div class="contact-item-val">tassirou44@gmail.com</div>
+            </div>
+          </a>
+          <a href="tel:+221775653857" class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0"></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Téléphone</div>
+              <div class="contact-item-val">+221 77 565 38 57</div>
+            </div>
+          </a>
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Localisation</div>
+              <div class="contact-item-val">Dakar, Sénégal · Remote OK</div>
+            </div>
+          </div>
+        </div>
+      <div class="reveal" style="transition-delay:.15s">
+        <div class="form-card">
+          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.05em;margin-bottom:1.8rem">Envoyez-moi un message</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Prénom</label>
+              <input type="text" placeholder="Jean" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nom</label>
+              <input type="text" placeholder="Dupont" class="form-input">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" placeholder="jean@exemple.com" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sujet</label>
+            <input type="text" placeholder="Projet web, collaboration, stage…" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message</label>
+            <textarea rows="5" placeholder="Décrivez votre projet…" class="form-input"></textarea>
+          </div>
+          <button type="button" id="send-btn" class="form-submit">Envoyer le message ✉️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer style="border-top:1px solid rgba(245,240,232,0.06);padding:3rem 0">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="flex flex-wrap items-center justify-between gap-6">
+      <div>
+        <p class="font-display text-2xl font-black" style="color:var(--accent)">TK.</p>
+        <p class="font-mono text-xs mt-1" style="color:rgba(245,240,232,0.35)">Tassirou Kondjira — Développeur Web Frontend</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/" target="_blank" class="social-icon" aria-label="GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <a href="https://linkedin.com/" target="_blank" class="social-icon" aria-label="LinkedIn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="https://twitter.com/" target="_blank" class="social-icon" aria-label="Twitter/X">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://codepen.io/" target="_blank" class="social-icon" aria-label="CodePen">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/><polyline points="2 15.5 12 8.5 22 15.5"/><line x1="12" y1="2" x2="12" y2="8.5"/></svg>
+        </a>
+        <a href="https://facebook.com/" target="_blank" class="social-icon" aria-label="Facebook">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://instagram.com/" target="_blank" class="social-icon" aria-label="Instagram">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="https://tiktok.com/" target="_blank" class="social-icon" aria-label="TikTok">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+        </a>
+      </div>
+      <div class="flex flex-wrap gap-5">
+        <a href="#about" class="nav-link">À propos</a>
+        <a href="#projects" class="nav-link">Projets</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(245,240,232,0.05);margin-top:2rem;padding-top:2rem;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem">
+      <p class="font-mono text-xs" style="color:rgba(245,240,232,0.25)">© 2026 Tassirou Kondjira. Tous droits réservés.</p>
+      <p class="font-mono text-xs" style="color:rgba(245,240,232,0.25)">Conçu & développé avec ❤️ · HTML + Tailwind CSS</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Cursor
+  const cur = document.getElementById('cur');
+  const curR = document.getElementById('cur-r');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+  (function tick(){
+    rx += (mx-rx)*.13; ry += (my-ry)*.13;
+    cur.style.left  = mx+'px'; cur.style.top  = my+'px';
+    curR.style.left = rx+'px'; curR.style.top = ry+'px';
+    requestAnimationFrame(tick);
+  })();
+  document.querySelectorAll('a,button').forEach(el => {
+    el.addEventListener('mouseenter', () => { cur.style.transform='translate(-50%,-50%) scale(3)'; curR.style.transform='translate(-50%,-50%) scale(1.4)'; });
+    el.addEventListener('mouseleave', () => { cur.style.transform='translate(-50%,-50%) scale(1)'; curR.style.transform='translate(-50%,-50%) scale(1)'; });
+  });
+
+  // ── Mobile menu
+  document.getElementById('burger').addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.toggle('open');
+  });
+  document.querySelectorAll('#mobile-menu a').forEach(a => a.addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.remove('open');
+  }));
+
+  // ── Scroll reveal
+  const ro = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); ro.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+  // ── Skill bars
+  const skillsObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        e.target.querySelectorAll('.skill-fill').forEach(b => {
+          setTimeout(() => { b.style.width = b.getAttribute('data-width')+'%'; }, 250);
+        });
+        skillsObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  const sg = document.getElementById('skills-grid');
+  if(sg) skillsObs.observe(sg);
+
+  // ── Active nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    sections.forEach(s => { if(window.scrollY >= s.offsetTop - 120) cur = s.id; });
+    document.querySelectorAll('.nav-link').forEach(l => {
+      l.style.color = l.getAttribute('href') === '#'+cur ? 'var(--gold)' : '';
+    });
+  });
+
+  // ── Contact button feedback
+  document.getElementById('send-btn').addEventListener('click', function(){
+    this.textContent = '✅ Message envoyé !';
+    this.style.background = '#22c55e';
+    setTimeout(() => { this.textContent='Envoyer le message ✉️'; this.style.background=''; }, 3000);
+  });
+</script>
+</body>
+</html>
